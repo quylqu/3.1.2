@@ -6,8 +6,9 @@
 </head>
 <body>
 <h2>Enter User ID to Delete</h2>
-<form action="/users/idForDelete" method="post">
-    <input type="text" id="userId" name="userId" required>
+<form method="POST" th:action="@{/users/idForDelete}">
+    <input type="hidden" name="_method" value="DELETE"/>
+    <input type="text" id="id" name="id" required>
     <button type="submit">Delete User</button>
 </form>
 </body>

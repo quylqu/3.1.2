@@ -1,28 +1,26 @@
 package com.ash.preproject.controllers;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import jakarta.transaction.Transactional;
+import com.ash.preproject.model.User;
+import com.ash.preproject.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.ash.preproject.dao.UserDao;
-import com.ash.preproject.model.User;
 
 @Controller
 @RequestMapping("/users")
 public class UsersController {
 
-    private final UserDao userDAO;
+    private final UserService userServiceI;
 
     @Autowired
-    public UsersController(UserDao userDAO) {
-        this.userDAO = userDAO;
+    public UsersController(UserService userServiceI) {
+        this.userServiceI = userServiceI;
     }
 
     @GetMapping()
     public String getAllUsers(Model model) {
-        model.addAttribute("users", userDAO.getAllUsers());
+        model.addAttribute("users", userServiceI.getAllUsers());
         return "users";
     }
 
@@ -32,10 +30,9 @@ public class UsersController {
         return "new";
     }
 
-    @PostMapping()
-    @Transactional
+    @PutMapping()
     public String create(@ModelAttribute("user") User user) {
-        userDAO.save(user);
+        userServiceI.save(user);
         return "redirect:/users";
     }
 
@@ -45,22 +42,21 @@ public class UsersController {
     }
 
     @PostMapping("/idForUpdate")
-    public String processUpdateUserForm(@RequestParam("userId") Long userId) {
-        return "redirect:/users/update/" + userId;
+    public String processUpdateUserForm(@RequestParam("id") Long id) {
+        return "redirect:/users/update/" + id;
     }
 
     @GetMapping("/update/{id}")
     public String updateUserByID(@PathVariable("id") Long id, Model model) {
-        User user = userDAO.getUserById(id);
+        User user = userServiceI.getUserById(id);
         model.addAttribute("user", user);
         return "update";
     }
 
-    @PostMapping("/update/{id}")
-    @Transactional
+    @PatchMapping("/update/{id}")
     public String update(@RequestParam("id") Long id, @ModelAttribute("user") User user) {
         user.setId(id);
-        userDAO.update(user);
+        userServiceI.update(id, user);
         return "redirect:/users";
     }
 
@@ -69,10 +65,9 @@ public class UsersController {
         return "idForDelete";
     }
 
-    @PostMapping("/idForDelete")
-    @Transactional
-    public String processDeleteUserForm(@RequestParam("userId") Long userId) {
-        userDAO.delete(userId);
+    @DeleteMapping("/idForDelete")
+    public String processDeleteUserForm(@RequestParam("id") Long id) {
+        userServiceI.delete(id);
         return "redirect:/users";
     }
 }
